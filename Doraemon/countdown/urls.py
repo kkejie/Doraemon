@@ -3,7 +3,7 @@
 # @FileName : urls.py
 # @Time     : 2024/11/29 0:24
 # @Author   : jiekc
-
+import re
 from datetime import datetime, timedelta
 import holidays
 from flask import Blueprint, jsonify, render_template, abort
@@ -37,7 +37,8 @@ def find_next_holiday():
     # 按日期排序找到最近的节日
     for date, name in sorted(chs_holidays.items()):
         if date >= now.date():  # 确保节日在未来
-            # holiday_name = holidays_chs.get(name, "未知节日")  # 映射节日名
+            if not bool(re.search(r'[\u4e00-\u9fff]+', name)):
+                name = holidays_chs.get(name, "未知节日")  # 映射节日名
             return date, name
     return None, None
 
