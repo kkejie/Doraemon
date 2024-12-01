@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="image/png" sizes="100x100" rel="icon" href="{{ url_for('static', filename='images/icons-100.png') }}">
+    <title>倒计时页面</title>
+    <script src="{{ url_for('static', filename='js/fancy.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/countdown.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <p id="work-status">
+                <span id="status-message">下班倒计时</span>
+                <span class="countdown" id="time-left">--</span>
+            </p>
+            <p>
+                <span id="weekend-text">距离 周末 还有</span>
+                <span class="countdown" id="weekend-time">--</span>
+            </p>
+        </div>
+        <div class="countdown">
+            <span id="holiday-name"></span>
+            <span id="holiday-date"></span>
+        </div>
+        <div class="next-holiday">
+            距离 <span class="countdown" id="holiday-name2"></span> 还有<br>
+            <span class="countdown" id="new-year-time"></span>
+            <span id="remaining-days"></span> 天
+            <span id="remaining-hours"></span> 时
+            <span id="remaining-minutes"></span> 分
+            <span class="countdown" id="remaining-seconds"></span> 秒
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/countdown.js') }}"></script>
+</body>
+</html>
