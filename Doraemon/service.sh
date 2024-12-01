@@ -3,7 +3,7 @@
 # 使用gunicorn部署服务
 ## shellcheck disable=SC2120
 status() {
-  GUNiCORN_STATUS=$(ps -ef |grep -E 'gunicorn.*5000' |grep -v grep|awk '{print $2}')
+  GUNiCORN_STATUS=$(ps -ef |grep -E 'gunicorn.*5001' |grep -v grep|awk '{print $2}')
   # 判断是否为空
   if [ -n "$GUNiCORN_STATUS" ]; then
     if [ "$1" == "print" ]; then
@@ -26,7 +26,7 @@ start() {
     # 后台启动服务
     # pip install gevent==1.4
     # pip install gunicorn
-    nohup gunicorn -w 7 -b 0.0.0.0:5000 --daemon --worker-class=gevent manage:app  >/dev/null 2>&1 &
+    nohup gunicorn -w 7 -b 0.0.0.0:5001 --daemon --worker-class=gevent manage:app  >/dev/null 2>&1 &
     sleep 3
     status
     if [ $? -ne 0 ]; then
@@ -48,7 +48,7 @@ stop() {
     return 0
   else
     # pkill gunicorn
-    ps -ef |grep -E 'gunicorn.*5000' |grep -v grep|awk '{print $2}'|xargs kill -9
+    ps -ef |grep -E 'gunicorn.*5001' |grep -v grep|awk '{print $2}'|xargs kill -9
     sleep 3
     status
     if [ $? -ne 0 ]; then
