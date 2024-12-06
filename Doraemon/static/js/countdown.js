@@ -26,10 +26,12 @@ function updateWeekEndElement(message, timeString) {
 // 更新倒计时
 function updateCountdown() {
     const now = new Date();
+    const workEndTime = new Date(now);
+    workEndTime.setHours(17, 30, 0, 0); // 设置晚餐时间
 
     // 判断是否是周末，如果是周末，直接显示“周末剩余时间”
     const dayOfWeek = now.getDay(); // 获取当前星期几，0是周日，6是周六
-    if (dayOfWeek === 0 || dayOfWeek === 6) {
+    if (dayOfWeek === 0 || dayOfWeek === 6 || dayOfWeek === 5 && now > workEndTime) {
         // 如果是周末，显示当前时间距离周末结束（星期天24:00）的剩余时间
         const weekendEndTime = new Date(now);
 
@@ -37,6 +39,9 @@ function updateCountdown() {
         if (dayOfWeek === 6) {
             // 如果是周六，设置周末结束时间为周日24:00
             weekendEndTime.setDate(weekendEndTime.getDate() + 1);
+        } else if (dayOfWeek === 5 ) {
+            // 如果是周六，设置周末结束时间为周日24:00
+            weekendEndTime.setDate(weekendEndTime.getDate() + 2);
         }
 
         weekendEndTime.setHours(23, 59, 59, 999); // 设置为周末结束时间（周日的24:00）
@@ -48,7 +53,7 @@ function updateCountdown() {
     } else {
         // 周末倒计时：假设周五18:00
         const weekendTime = new Date(now);
-        weekendTime.setHours(18, 0, 0, 0);
+        weekendTime.setHours(17, 30, 0, 0);
         weekendTime.setDate(weekendTime.getDate() + ((5 - weekendTime.getDay() + 7) % 7)); // 本周五
 
         // 转换为天、小时、分钟和秒
@@ -71,17 +76,17 @@ function updateCountdown() {
         // 判断当前时间并更新
         if (now < LunchStartTime) {
             const {hours, minutes, seconds} = getTimeDiff(LunchStartTime);
-            updateTimeElement("距离 午餐 还有 ", `${hours}时${minutes}分${seconds}秒`);
+            updateTimeElement("距离午餐还有 ", `${hours}时${minutes}分${seconds}秒`);
         } else if (now >= LunchStartTime && now < LunchBreakEndTime) {
-            updateTimeElement("滚去", "吃饭 睡觉！！！");
+            updateTimeElement("滚去", "吃饭睡觉！！！");
         } else if (now >= LunchBreakEndTime && now < workEndTime) {
             const {hours, minutes, seconds} = getTimeDiff(workEndTime);
-            updateTimeElement("距离 晚餐 还有 ", `${hours}时${minutes}分${seconds}秒`);
+            updateTimeElement("距离晚餐还有 ", `${hours}时${minutes}分${seconds}秒`);
         } else if (now >= workEndTime && now < overtimeStartTime) {
             updateTimeElement("滚去", "吃饭！！！");
         } else {
             const {hours, minutes, seconds} = getTimeDiff(overtimeStartTime, false);
-            updateTimeElement("你已 加班 ", `${hours}时${minutes}分${seconds}秒`);
+            updateTimeElement("你已加班 ", `${hours}时${minutes}分${seconds}秒`);
         }
 
     }
