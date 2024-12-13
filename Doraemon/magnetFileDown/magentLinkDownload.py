@@ -4,6 +4,13 @@
 # @Time     : 2024/6/6 22:00
 # @Author   : jiekc
 
+import sys
+import os
+
+# 获取项目根目录
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# 将项目根目录添加到 Python 搜索路径
+sys.path.append(project_root)
 import requests
 import re
 import time
@@ -39,14 +46,14 @@ class DownloadResources:
         ]
         self.headers = {
             "Accept": "*/*",
-            "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "zh-CN,zh;q=0.9",
             "Connection": "keep-alive",
             "User-Agent": random.choice(self.user_agent_list),
+            "Accept-Encoding": "identity"
         }
         self.proxies = {
-            "http": "192.168.31.121:7890",
-            "https": "192.168.31.121:7890",
+            "http": "http://192.168.31.121:7890",
+            "https": "http://192.168.31.121:7890",
         }
         url_home = f"{self.base_url}gccm/tx/"
 
