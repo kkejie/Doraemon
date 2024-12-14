@@ -102,7 +102,7 @@ class DownloadResources:
             # 正则表达式匹配 magnet 链接
             pattern_magnet = r'href="(magnet:[^"]+)"'
             pattern_title = r'entry-title">([^<]+)</h1>'
-            pattern_png = r'srcset="([^"]+)\s\d+w'
+            pattern_png = r'srcset="([^"]+) 720w'
             magnet_links = re.findall(pattern_magnet, res_html)
             title = re.findall(pattern_title, res_html)
             png_link = re.findall(pattern_png, res_html)
