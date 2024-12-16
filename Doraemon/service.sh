@@ -26,7 +26,7 @@ start() {
     # 后台启动服务
     # pip install gevent==1.4
     # pip install gunicorn
-    nohup gunicorn -w 4 -b 0.0.0.0:5001 --daemon manage:app  >/dev/null 2>&1 &
+    nohup sudo gunicorn -w 1 -b 0.0.0.0:5001 --daemon manage:app  > output.log 2>&1 &
     sleep 3
     status
     if [ $? -ne 0 ]; then

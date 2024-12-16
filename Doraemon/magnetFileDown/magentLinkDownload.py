@@ -6,11 +6,6 @@
 
 import sys
 import os
-
-# 获取项目根目录
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# 将项目根目录添加到 Python 搜索路径
-sys.path.append(project_root)
 import requests
 import re
 import time
@@ -19,7 +14,14 @@ import random
 import configparser
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from Doraemon.common.sendWechatMessage import send_message, send_news_message, send_file_message
+from pathlib import Path
+
+# 获取项目根目录
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# 将项目根目录添加到 Python 搜索路径
+sys.path.append(project_root)
+
+from Doraemon.common.sendWechatMessage import send_text_message, send_news_message, send_file_message
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -32,12 +34,14 @@ class DownloadResources:
         # 创建配置解析器
         config = configparser.ConfigParser()
         # 读取配置文件
-        config.read('config.ini', encoding='utf-8')
+        abs_path = "Doraemon/magnetFileDown/config.ini"
+        config_path = Path(project_root) / abs_path
+        print(config_path)
+        config.read(config_path, encoding='utf-8')
 
         # 访问默认节（DEFAULT）的值
         self.start_id = int(config['Index']['startID'])
 
-        self.base_url = "https://madouqu.com/"
         self.user_agent_list = [
             "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36",
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
@@ -55,6 +59,17 @@ class DownloadResources:
             "http": "http://192.168.31.121:7890",
             "https": "http://192.168.31.121:7890",
         }
+        base_url_list = [f"https://madouqu{i}.xyz/" for i in range(1, 10)]
+        for base_url in base_url_list:
+            try:
+                res = requests.get(url=base_url, headers=self.headers, proxies=self.proxies, verify=False, timeout=10)
+                if res.status_code == 200:
+                    self.base_url = base_url
+                    break
+            except Exception:
+                logging.error(f"{base_url} 无法访问此网站")
+        logging.info(f'访问域名：{self.base_url}')
+        # self.base_url = "https://madouqu1.xyz/"        # "https://madouqu.com/"
         url_home = f"{self.base_url}gccm/tx/"
 
         response = requests.get(url_home, headers=self.headers, proxies=self.proxies, verify=False, timeout=60)
@@ -63,7 +78,7 @@ class DownloadResources:
         res_html = response.text
 
         # 正则表达式匹配 magnet 链接
-        pattern = r'href="https://madouqu.com/tx(\d+)/"'
+        pattern = r'tx(\d+)/"'
         numbers = re.findall(pattern, res_html)
 
         # 找到最大的数字
@@ -88,7 +103,7 @@ class DownloadResources:
         time_str = time.strftime("%Y%m%d", current_time)
         self.file_name = f'magnet_links_{time_str}.txt'
 
-    def load_accessing_web_pages(self, index):
+    def load_accessing_web_pages(self, index, to_user='kejie'):
         addr = f'tx{index}/'
         url = self.base_url + addr
         logging.info(f"请求 URL: {url}")
@@ -114,7 +129,8 @@ class DownloadResources:
                     "url": url,
                     "picurl": png_link[0]
                 }]
-                send_news_message(message, 'kejie')
+                logging.info(message)
+                send_news_message(message, to_user)
 
             if magnet_links:
                 logging.info(f"提取到的 magnet 链接: {magnet_links}")
@@ -152,10 +168,11 @@ class DownloadResources:
         err_message = '无失败索引数据' if not self.err_list else f'失败索引：{self.err_list}'
 
         send_file_message(self.file_name, 'kejie')
-        send_message('kejie', suc_message)
-        send_message('kejie', err_message)
+        send_text_message(suc_message, 'kejie')
+        send_text_message(err_message, 'kejie')
 
 
 if __name__ == "__main__":
     dr = DownloadResources()
     dr.main()
+    # dr.load_accessing_web_pages(1770)

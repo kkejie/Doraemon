@@ -9,6 +9,7 @@ from flask import Flask
 from Doraemon.settings import MysqlConfig
 from Doraemon.countdown.urls import test_blueprint
 from Doraemon.numberToExcel.main import convert_blueprint
+from Doraemon.magnetFileDown.getWechatMessage import get_we_chat_message_blueprint
 
 
 def create_app():
@@ -24,6 +25,7 @@ def create_app():
     app.config.from_object(MysqlConfig)
     app.register_blueprint(test_blueprint)
     app.register_blueprint(convert_blueprint)
+    app.register_blueprint(get_we_chat_message_blueprint)
 
     # db.init_app(app)
 

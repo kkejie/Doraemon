@@ -14,6 +14,6 @@ from Doraemon import create_app
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5001)
 
 # sudo docker run -d --name=postgres -p 5432:5432  -e POSTGRES_PASSWORD=123456 postgres
