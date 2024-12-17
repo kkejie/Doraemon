@@ -12,9 +12,11 @@ import base64
 import hashlib
 import struct
 import logging
+import configparser
 import xml.etree.ElementTree as ET
 from flask import Blueprint, render_template, request, send_file, jsonify
 from Crypto.Cipher import AES
+from pathlib import Path
 
 # 获取项目根目录
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -86,11 +88,33 @@ def wecom_message():
 
     # 根据消息内容（Encrypt）自动请求外部 API
     if content:
-        api_response = DownloadResources().load_accessing_web_pages(content)  # 调用外部 API
+        api_response = DownloadResources().load_accessing_web_pages(content, from_user)  # 调用外部 API
         time.sleep(1)
         return jsonify({"status": "success", "message": "任务已启动", "api_response": api_response})
     else:
         return jsonify({"status": "error", "message": "消息内容解析失败"})
+
+
+@get_we_chat_message_blueprint.route('/set_flg/<flg>', methods=['GET', 'POST'])
+def set_flg(flg):
+    # 创建配置解析器
+    config = configparser.ConfigParser()
+    # 读取配置文件
+    abs_path = "Doraemon/magnetFileDown/config.ini"
+    config_path = Path(project_root) / abs_path
+    config.read(config_path, encoding='utf-8')
+    config['Flg']['flg'] = flg
+    with open(config_path, 'w', encoding='utf-8') as configfile:
+        config.write(configfile)
+    return f"Flag updated to {flg}", 200
+
+
+@get_we_chat_message_blueprint.route('/get_magnet_list/<flg>', methods=['GET', 'POST'])
+def get_magnet_list(flg):
+    set_flg(flg)
+    time.sleep(3)
+    DownloadResources().main()
+    return f'执行成功，等待数据返回'
 
 
 def verify_signature(req):

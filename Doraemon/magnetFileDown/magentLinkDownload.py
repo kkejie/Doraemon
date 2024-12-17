@@ -39,8 +39,8 @@ class DownloadResources:
         print(config_path)
         config.read(config_path, encoding='utf-8')
 
-        # 访问默认节（DEFAULT）的值
-        self.start_id = int(config['Index']['startID'])
+        self.flg = config['Flg']['flg']
+        self.start_id = int(config[f'{self.flg}-Index']['start_id'])
 
         self.user_agent_list = [
             "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36",
@@ -70,7 +70,7 @@ class DownloadResources:
                 logging.error(f"{base_url} 无法访问此网站")
         logging.info(f'访问域名：{self.base_url}')
         # self.base_url = "https://madouqu1.xyz/"        # "https://madouqu.com/"
-        url_home = f"{self.base_url}gccm/tx/"
+        url_home = f"{self.base_url}gccm/{self.flg}/"
 
         response = requests.get(url_home, headers=self.headers, proxies=self.proxies, verify=False, timeout=60)
         response.raise_for_status()
@@ -78,7 +78,7 @@ class DownloadResources:
         res_html = response.text
 
         # 正则表达式匹配 magnet 链接
-        pattern = r'tx(\d+)/"'
+        pattern = fr'{self.flg}(\d+)/"'
         numbers = re.findall(pattern, res_html)
 
         # 找到最大的数字
@@ -90,7 +90,7 @@ class DownloadResources:
             self.end_id = self.start_id + 10
             logging.info("未找到任何数字")
 
-        config['Index']['startID'] = str(self.end_id)
+        config[f'{self.flg}-Index']['start_id'] = str(self.end_id)
         with open('config.ini', 'w', encoding='utf-8') as configfile:
             config.write(configfile)
 
@@ -101,10 +101,10 @@ class DownloadResources:
         # 获取当前时间的时间戳
         current_time = time.localtime()
         time_str = time.strftime("%Y%m%d", current_time)
-        self.file_name = f'magnet_links_{time_str}.txt'
+        self.file_name = f'magnet_links_{self.flg}_{time_str}.txt'
 
     def load_accessing_web_pages(self, index, to_user='kejie'):
-        addr = f'tx{index}/'
+        addr = f'{self.flg}{index}/'
         url = self.base_url + addr
         logging.info(f"请求 URL: {url}")
         try:
@@ -117,15 +117,16 @@ class DownloadResources:
             # 正则表达式匹配 magnet 链接
             pattern_magnet = r'href="(magnet:[^"]+)"'
             pattern_title = r'entry-title">([^<]+)</h1>'
-            pattern_png = r'srcset="([^"]+) 720w'
+            # pattern_png = r'srcset="([^"]+) 720w'
+            pattern_png = r'srcset="([^"]*?\.png)\s'
             magnet_links = re.findall(pattern_magnet, res_html)
             title = re.findall(pattern_title, res_html)
             png_link = re.findall(pattern_png, res_html)
 
-            if title and png_link:
+            if title:
                 message = [{
                     "title": title[0],
-                    "description": "点击查看详情",
+                    "description": f"【{index}】点击查看详情",
                     "url": url,
                     "picurl": png_link[0]
                 }]
@@ -175,4 +176,4 @@ class DownloadResources:
 if __name__ == "__main__":
     dr = DownloadResources()
     dr.main()
-    # dr.load_accessing_web_pages(1770)
+    # dr.load_accessing_web_pages(3)
